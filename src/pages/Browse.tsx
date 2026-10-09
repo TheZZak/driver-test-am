@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useDataset } from '../App'
 import { QuestionCard } from '../components/QuestionCard'
-import { TopBar } from '../components/TopBar'
+import { PageHead, SiteHeader } from '../components/Layout'
 import { t } from '../i18n/hy'
 
 const PAGE = 25
@@ -41,40 +41,44 @@ export function Browse() {
   const groupTitle = (id: number) => data.groups.find((x) => x.id === id)!.title
 
   return (
-    <div className="page">
-      <TopBar title={t.modeBrowse} />
-
-      <input
-        className="search"
-        type="search"
-        placeholder={t.search}
-        value={query}
-        onChange={(e) => update({ q: e.target.value })}
-      />
-      <div className="chips scroll-x">
-        <button className={'chip' + (!g ? ' on' : '')} onClick={() => update({ g: '' })}>
-          {t.allGroups}
-        </button>
-        {data.groups.map((x) => (
-          <button key={x.id} className={'chip' + (g === x.id ? ' on' : '')} onClick={() => update({ g: String(x.id) })}>
-            {x.title}
-          </button>
-        ))}
-      </div>
-      <p className="muted">{list.length ? t.found(list.length) : t.noResults}</p>
-
-      <div className="review-list">
-        {list.slice(0, limit).map((q) => (
-          <QuestionCard key={q.id} q={q} groupTitle={groupTitle(q.g)} selected={null} reveal lazyImage />
-        ))}
-      </div>
-      {limit < list.length && (
-        <div className="center">
-          <button className="btn" onClick={() => setLimit((n) => n + PAGE)}>
-            {t.loadMore} ({list.length - limit})
-          </button>
+    <>
+      <SiteHeader />
+      <main className="page">
+        <PageHead title={t.modeBrowse} note={t.modeBrowseDesc} />
+        <div className="filters">
+          <input
+            className="input search"
+            type="search"
+            placeholder={t.search}
+            value={query}
+            onChange={(e) => update({ q: e.target.value })}
+          />
+          <select className="input" value={g} onChange={(e) => update({ g: e.target.value === '0' ? '' : e.target.value })}>
+            <option value="0">{t.allGroups}</option>
+            {data.groups.map((x) => (
+              <option key={x.id} value={x.id}>
+                {x.title} ({x.count})
+              </option>
+            ))}
+          </select>
         </div>
-      )}
-    </div>
+        <p className="muted small">{list.length ? t.found(list.length) : t.noResults}</p>
+
+        <div className="q-list">
+          {list.slice(0, limit).map((q) => (
+            <div key={q.id} className="q-item">
+              <QuestionCard q={q} groupTitle={groupTitle(q.g)} selected={null} reveal lazyImage />
+            </div>
+          ))}
+        </div>
+        {limit < list.length && (
+          <div className="center">
+            <button className="btn" onClick={() => setLimit((n) => n + PAGE)}>
+              {t.loadMore} ({list.length - limit})
+            </button>
+          </div>
+        )}
+      </main>
+    </>
   )
 }

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { t } from '../i18n/hy'
 import type { Question } from '../types'
 import { BookmarkStar } from './BookmarkStar'
@@ -12,30 +13,29 @@ interface Props {
   reveal: boolean
   onSelect?: (option: number) => void
   lazyImage?: boolean
-  index?: number
+  /** left side of the header, e.g. "Հարց 3 / 20"; defaults to the group reference */
+  heading?: ReactNode
 }
 
-export function QuestionCard({ q, groupTitle, selected, reveal, onSelect, lazyImage, index }: Props) {
+export function QuestionCard({ q, groupTitle, selected, reveal, onSelect, lazyImage, heading }: Props) {
   const locked = reveal || !onSelect
+  const ref = `${groupTitle} · № ${q.n}`
   return (
-    <article className="card question">
-      <header className="q-meta">
-        <span className="badge">
-          {groupTitle} · #{q.n}
-        </span>
-        {index != null && <span className="q-index">{t.question} {index}</span>}
+    <article className="question">
+      <div className="q-head">
+        <span className="q-num">{heading ?? ref}</span>
+        {heading != null && <span className="q-ref">{ref}</span>}
         <BookmarkStar id={q.id} />
-      </header>
-      <h2 className="q-text">{q.q}</h2>
+      </div>
       {q.img && <QuestionImage img={q.img} lazy={lazyImage} />}
+      <h2 className="q-text">{q.q}</h2>
       <ol className="options">
         {q.opts.map((text, i) => {
           const n = i + 1
           let state = ''
           if (reveal) {
-            if (n === q.a) state = 'correct'
+            if (n === q.a) state = selected == null ? 'key' : 'correct'
             else if (n === selected) state = 'wrong'
-            else state = 'dim'
           } else if (n === selected) state = 'selected'
           return (
             <li key={n}>
@@ -48,18 +48,16 @@ export function QuestionCard({ q, groupTitle, selected, reveal, onSelect, lazyIm
               >
                 <span className="opt-num">{n}.</span>
                 <span className="opt-text">{text}</span>
-                {reveal && n === q.a && <span className="opt-mark" aria-label={t.correct}>✓</span>}
-                {reveal && n === selected && n !== q.a && (
-                  <span className="opt-mark" aria-label={t.wrong}>✗</span>
-                )}
               </button>
             </li>
           )
         })}
       </ol>
       {reveal && (
-        <p className={'answer-line' + (selected != null && selected !== q.a ? ' after-wrong' : '')}>
-          {selected != null && <strong>{selected === q.a ? t.correct : t.wrong} · </strong>}
+        <p className="answer-line">
+          {selected != null && (
+            <span className={selected === q.a ? 'ok' : 'bad'}>{selected === q.a ? t.correct : t.wrong} · </span>
+          )}
           {t.answerLine(q.a)}
         </p>
       )}

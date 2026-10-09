@@ -1,5 +1,6 @@
 import { t } from '../i18n/hy'
 import { toggleBookmark, usePersist } from '../lib/storage'
+import { IconStar } from './Icons'
 
 export function BookmarkStar({ id }: { id: string }) {
   const on = usePersist().bookmarks.includes(id)
@@ -13,7 +14,7 @@ export function BookmarkStar({ id }: { id: string }) {
       aria-label={label}
       title={label}
     >
-      {on ? '★' : '☆'}
+      <IconStar filled={on} />
     </button>
   )
 }

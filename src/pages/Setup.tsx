@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useDataset } from '../App'
-import { TopBar } from '../components/TopBar'
+import { PageHead, SiteHeader } from '../components/Layout'
 import { t } from '../i18n/hy'
 import { pickQuestions, poolFor, startPractice, type Order } from '../lib/sessions'
 import { usePersist } from '../lib/storage'
@@ -47,85 +47,87 @@ export function Setup() {
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id].sort((a, b) => a - b)))
 
   return (
-    <div className="page">
-      <TopBar title={title} />
+    <>
+      <SiteHeader />
+      <main className="page narrow">
+        <PageHead
+          title={title}
+          note={isGroup ? `${group!.subtitle} · ${t.questionsCount(group!.count)}` : undefined}
+        />
 
-      {isGroup && <p className="muted center">{group!.subtitle} · {t.questionsCount(group!.count)}</p>}
-
-      {isMix && (
-        <section className="card form-section">
-          <div className="row-between">
-            <h3>{t.selectGroups}</h3>
-            <div className="row">
-              <button className="link-btn" onClick={() => setSelected(data.groups.map((g) => g.id))}>
+        {isMix && (
+          <fieldset className="form-block">
+            <legend>{t.selectGroups}</legend>
+            <div className="check-grid">
+              {data.groups.map((g) => (
+                <label key={g.id} className="check">
+                  <input type="checkbox" checked={selected.includes(g.id)} onChange={() => toggle(g.id)} />
+                  {g.title} <span className="muted">({g.count})</span>
+                </label>
+              ))}
+            </div>
+            <div className="row-links">
+              <button className="link" onClick={() => setSelected(data.groups.map((g) => g.id))}>
                 {t.selectAll}
               </button>
-              <button className="link-btn" onClick={() => setSelected([])}>
+              <button className="link" onClick={() => setSelected([])}>
                 {t.clearAll}
               </button>
             </div>
-          </div>
-          <div className="chips">
-            {data.groups.map((g) => (
-              <button
-                key={g.id}
-                className={'chip' + (selected.includes(g.id) ? ' on' : '')}
-                aria-pressed={selected.includes(g.id)}
-                onClick={() => toggle(g.id)}
-              >
-                {g.title} <small>({g.count})</small>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="card form-section">
-        <h3>{t.count}</h3>
-        <div className="chips">
-          {COUNTS.filter((c) => c < available).map((c) => (
-            <button key={c} className={'chip' + (count === c ? ' on' : '')} onClick={() => setCount(c)}>
-              {c}
-            </button>
-          ))}
-          <button className={'chip' + (count === 'all' ? ' on' : '')} onClick={() => setCount('all')}>
-            {t.all} ({available})
-          </button>
-        </div>
-      </section>
-
-      {mode !== 'random' && (
-        <section className="card form-section">
-          <h3>{t.order}</h3>
-          <div className="chips">
-            <button className={'chip' + (order === 'seq' ? ' on' : '')} onClick={() => setOrder('seq')}>
-              {t.orderSeq}
-            </button>
-            <button className={'chip' + (order === 'shuffle' ? ' on' : '')} onClick={() => setOrder('shuffle')}>
-              {t.orderShuffle}
-            </button>
-          </div>
-        </section>
-      )}
-
-      <section className="card form-section">
-        <label className="check">
-          <input type="checkbox" checked={onlyNew} onChange={(e) => setOnlyNew(e.target.checked)} />
-          {t.onlyUnanswered}
-        </label>
-        <p className="muted">{t.available(available)}</p>
-      </section>
-
-      <div className="actions">
-        <button className="btn primary big" disabled={!effective} onClick={begin}>
-          {t.start} · {t.questionsCount(effective)}
-        </button>
-        {isGroup && (
-          <Link className="btn" to={`/browse?g=${group!.id}`}>
-            {t.browseGroup}
-          </Link>
+          </fieldset>
         )}
-      </div>
-    </div>
+
+        <fieldset className="form-block">
+          <legend>{t.count}</legend>
+          <div className="radio-row">
+            {COUNTS.filter((c) => c < available).map((c) => (
+              <label key={c}>
+                <input type="radio" name="count" checked={count === c} onChange={() => setCount(c)} />
+                {c}
+              </label>
+            ))}
+            <label>
+              <input type="radio" name="count" checked={count === 'all'} onChange={() => setCount('all')} />
+              {t.all} ({available})
+            </label>
+          </div>
+        </fieldset>
+
+        {mode !== 'random' && (
+          <fieldset className="form-block">
+            <legend>{t.order}</legend>
+            <div className="radio-row">
+              <label>
+                <input type="radio" name="order" checked={order === 'seq'} onChange={() => setOrder('seq')} />
+                {t.orderSeq}
+              </label>
+              <label>
+                <input type="radio" name="order" checked={order === 'shuffle'} onChange={() => setOrder('shuffle')} />
+                {t.orderShuffle}
+              </label>
+            </div>
+          </fieldset>
+        )}
+
+        <fieldset className="form-block">
+          <label className="check">
+            <input type="checkbox" checked={onlyNew} onChange={(e) => setOnlyNew(e.target.checked)} />
+            {t.onlyUnanswered}
+          </label>
+          <p className="muted small">{t.available(available)}</p>
+        </fieldset>
+
+        <div className="row-actions">
+          <button className="btn primary big" disabled={!effective} onClick={begin}>
+            {t.start} · {t.questionsCount(effective)}
+          </button>
+          {isGroup && (
+            <Link className="btn big" to={`/browse?g=${group!.id}`}>
+              {t.browseGroup}
+            </Link>
+          )}
+        </div>
+      </main>
+    </>
   )
 }

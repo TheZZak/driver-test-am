@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useDataset } from '../App'
-import { ProgressBar } from '../components/ProgressBar'
+import { TestHeader } from '../components/Layout'
+import { NumberStrip, type CellState } from '../components/NumberStrip'
 import { QuestionCard } from '../components/QuestionCard'
-import { TopBar } from '../components/TopBar'
 import { t } from '../i18n/hy'
 import { sessionScore } from '../lib/sessions'
 import { getSession, recordAnswer, setSession, toggleBookmark, useSession } from '../lib/storage'
@@ -27,7 +27,6 @@ function PracticeRunner({ session }: { session: Session }) {
   const reveal = selected != null
   const isLast = idx === ids.length - 1
   const score = sessionScore(session, data)
-  const done = score.correct + score.wrong
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -48,16 +47,17 @@ function PracticeRunner({ session }: { session: Session }) {
     setSession({ ...s, finishedAt: Date.now() })
     navigate('/results')
   }
+  const goTo = (i: number) => {
+    const s = getSession()
+    if (s && !s.finishedAt && i >= 0 && i < s.ids.length) setSession({ ...s, idx: i })
+  }
   const next = () => {
     const s = getSession()
     if (!s || s.finishedAt) return
     if (s.idx >= s.ids.length - 1) finish()
-    else setSession({ ...s, idx: s.idx + 1 })
+    else goTo(s.idx + 1)
   }
-  const prev = () => {
-    const s = getSession()
-    if (s && !s.finishedAt && s.idx > 0) setSession({ ...s, idx: s.idx - 1 })
-  }
+  const prev = () => goTo((getSession()?.idx ?? idx) - 1)
 
   useKeys((e) => {
     const d = Number(e.key)
@@ -69,36 +69,48 @@ function PracticeRunner({ session }: { session: Session }) {
     e.preventDefault()
   })
 
+  const states: CellState[] = ids.map((id, i) => {
+    const a = session.answers[i]
+    if (a == null) return 'none'
+    return a === data.byId.get(id)!.a ? 'correct' : 'wrong'
+  })
+
   return (
-    <div className="page quiz">
-      <TopBar
+    <>
+      <TestHeader
         title={session.label}
         right={
-          <button className="btn small" onClick={finish}>
-            {t.finish}
-          </button>
+          <>
+            <span className="score">
+              <span className="ok">{score.correct}</span> / <span className="bad">{score.wrong}</span>
+            </span>
+            <button className="btn small" onClick={finish}>
+              {t.finish}
+            </button>
+          </>
         }
       />
-      <div className="quiz-status">
-        <span className="counter">{t.of(idx + 1, ids.length)}</span>
-        <span className="score">
-          <span className="ok">✓ {score.correct}</span>
-          <span className="bad">✗ {score.wrong}</span>
-        </span>
-      </div>
-      <ProgressBar value={done} total={ids.length} />
-
-      <QuestionCard key={q.id} q={q} groupTitle={group.title} selected={selected} reveal={reveal} onSelect={answer} />
-      <p className="hint muted kbd-hint">{t.keyboardHint}</p>
-
-      <nav className="bottom-bar">
-        <button className="btn" onClick={prev} disabled={idx === 0}>
-          ← {t.prev}
-        </button>
-        <button className={'btn ' + (reveal ? 'primary' : '')} onClick={next}>
-          {reveal ? (isLast ? t.finish : t.next) : isLast ? t.finish : t.skip} →
-        </button>
-      </nav>
-    </div>
+      <main className="page test">
+        <NumberStrip states={states} current={idx} onJump={goTo} />
+        <QuestionCard
+          key={q.id}
+          q={q}
+          groupTitle={group.title}
+          selected={selected}
+          reveal={reveal}
+          onSelect={answer}
+          heading={`${t.question} ${t.of(idx + 1, ids.length)}`}
+        />
+        <div className="test-nav">
+          <button className="btn" onClick={prev} disabled={idx === 0}>
+            ← {t.prev}
+          </button>
+          <button className={'btn' + (reveal ? ' primary' : '')} onClick={next}>
+            {reveal ? (isLast ? t.finish : t.next) : isLast ? t.finish : t.skip} →
+          </button>
+        </div>
+        <p className="hint kbd-hint">{t.keyboardHint}</p>
+      </main>
+    </>
   )
 }

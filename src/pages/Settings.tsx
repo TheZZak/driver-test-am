@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useDataset } from '../App'
-import { TopBar } from '../components/TopBar'
+import { PageHead, SiteHeader } from '../components/Layout'
 import { t } from '../i18n/hy'
 import { countCachedImages, downloadImages, offlineSupported } from '../lib/offline'
 import { DEFAULT_SETTINGS, resetProgress, updateSettings, usePersist } from '../lib/storage'
@@ -32,6 +32,7 @@ function NumberField({
     <label className="field">
       <span>{label}</span>
       <input
+        className="input"
         type="number"
         inputMode="numeric"
         min={min}
@@ -84,85 +85,99 @@ export function Settings() {
   ]
 
   return (
-    <div className="page">
-      <TopBar title={t.settings} />
+    <>
+      <SiteHeader />
+      <main className="page narrow">
+        <PageHead title={t.settings} />
 
-      <section className="card form-section">
-        <h3>{t.examRules}</h3>
-        <div className="fields">
-          <NumberField label={t.examCount} value={settings.examCount} min={5} max={100} onChange={(n) => set({ examCount: n })} />
-          <NumberField label={t.examMinutes} value={settings.examMinutes} min={1} max={180} onChange={(n) => set({ examMinutes: n })} />
-          <NumberField
-            label={t.examMaxErrors}
-            value={settings.examMaxErrors}
-            min={0}
-            max={settings.examCount}
-            onChange={(n) => set({ examMaxErrors: n })}
-          />
-        </div>
-        <button
-          className="link-btn"
-          onClick={() =>
-            set({
-              examCount: DEFAULT_SETTINGS.examCount,
-              examMinutes: DEFAULT_SETTINGS.examMinutes,
-              examMaxErrors: DEFAULT_SETTINGS.examMaxErrors,
-            })
-          }
-        >
-          {t.resetDefaults}
-        </button>
-      </section>
-
-      <section className="card form-section">
-        <h3>{t.theme}</h3>
-        <div className="chips">
-          {themes.map(([value, label]) => (
-            <button key={value} className={'chip' + (settings.theme === value ? ' on' : '')} onClick={() => set({ theme: value })}>
-              {label}
+        <fieldset className="form-block">
+          <legend>{t.examRules}</legend>
+          <div className="fields">
+            <NumberField label={t.examCount} value={settings.examCount} min={5} max={100} onChange={(n) => set({ examCount: n })} />
+            <NumberField label={t.examMinutes} value={settings.examMinutes} min={1} max={180} onChange={(n) => set({ examMinutes: n })} />
+            <NumberField
+              label={t.examMaxErrors}
+              value={settings.examMaxErrors}
+              min={0}
+              max={settings.examCount}
+              onChange={(n) => set({ examMaxErrors: n })}
+            />
+          </div>
+          <div className="row-links">
+            <button
+              className="link"
+              onClick={() =>
+                set({
+                  examCount: DEFAULT_SETTINGS.examCount,
+                  examMinutes: DEFAULT_SETTINGS.examMinutes,
+                  examMaxErrors: DEFAULT_SETTINGS.examMaxErrors,
+                })
+              }
+            >
+              {t.resetDefaults}
             </button>
-          ))}
-        </div>
-      </section>
+          </div>
+        </fieldset>
 
-      <section className="card form-section">
-        <h3>{t.offline}</h3>
-        {offlineSupported() ? (
-          <>
-            <p className="muted">{t.offlineDesc}</p>
-            {cached != null && <p>{t.offlineDone(Math.min(cached, images.length))} / {images.length}</p>}
-            {progress ? (
-              <p>{t.offlineProgress(progress[0], progress[1])}</p>
-            ) : (
-              <button className="btn primary" onClick={download}>
-                {t.offlineDownload}
-              </button>
-            )}
-            {error && <p className="bad">{t.offlineError}</p>}
-            <p className="muted small">{t.installHint}</p>
-          </>
-        ) : (
-          <p className="muted">{t.offlineUnsupported}</p>
-        )}
-      </section>
+        <fieldset className="form-block">
+          <legend>{t.theme}</legend>
+          <div className="radio-row">
+            {themes.map(([value, label]) => (
+              <label key={value}>
+                <input type="radio" name="theme" checked={settings.theme === value} onChange={() => set({ theme: value })} />
+                {label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-      <section className="card form-section">
-        <h3>{t.progress}</h3>
-        <button
-          className="btn danger"
-          onClick={() => {
-            if (window.confirm(t.resetConfirm)) {
-              resetProgress()
-              setResetMsg(true)
-            }
-          }}
-        >
-          {t.resetProgress}
-        </button>
-        {resetMsg && <p className="ok">{t.resetDone}</p>}
-      </section>
+        <fieldset className="form-block">
+          <legend>{t.offline}</legend>
+          {offlineSupported() ? (
+            <>
+              <p className="muted">{t.offlineDesc}</p>
+              {cached != null && (
+                <p>
+                  {t.offlineDone(Math.min(cached, images.length))} / {images.length}
+                </p>
+              )}
+              {progress ? (
+                <p>{t.offlineProgress(progress[0], progress[1])}</p>
+              ) : (
+                <div>
+                  <button className="btn" onClick={download}>
+                    {t.offlineDownload}
+                  </button>
+                </div>
+              )}
+              {error && <p className="bad">{t.offlineError}</p>}
+              <p className="muted small">{t.installHint}</p>
+            </>
+          ) : (
+            <p className="muted">{t.offlineUnsupported}</p>
+          )}
+        </fieldset>
 
-      <footer className="footer muted">{t.source}</footer>
-    </div>
+        <fieldset className="form-block">
+          <legend>{t.progress}</legend>
+          <div>
+            <button
+              className="btn danger"
+              onClick={() => {
+                if (window.confirm(t.resetConfirm)) {
+                  resetProgress()
+                  setResetMsg(true)
+                }
+              }}
+            >
+              {t.resetProgress}
+            </button>
+          </div>
+          {resetMsg && <p className="ok">{t.resetDone}</p>}
+        </fieldset>
+
+        <footer className="footer muted">{t.source}</footer>
+      </main>
+    </>
   )
 }

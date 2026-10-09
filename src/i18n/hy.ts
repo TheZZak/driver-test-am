@@ -6,7 +6,33 @@ export const t = {
   loadError: 'Չհաջողվեց բեռնել հարցերը։ Ստուգեք ինտերնետ կապը և թարմացրեք էջը։',
   retry: 'Կրկին փորձել',
 
+  // header / navigation
+  navExam: 'Քննություն',
+  navMistakes: 'Սխալներ',
+  navBookmarks: 'Ընտրյալներ',
+  navBrowse: 'Հարցաշար',
+
   // home
+  examIntro: 'Հարցերն ընտրվում են պատահականորեն բոլոր 10 խմբերից՝ խմբի չափին համամասնորեն։',
+  startExam: 'Սկսել քննությունը',
+  unfinished: 'Ունեք չավարտված թեստ',
+  questionBank: 'Տեսական քննության հարցաշար',
+  questionBankNote: 'Վարորդական իրավունքի վկայական ստանալու հարցաշար՝ A, B և C կարգերի համար',
+  colGroup: 'Խումբ',
+  colQuestions: 'Հարցեր',
+  colAnswered: 'Պատասխանված',
+  colMistakes: 'Սխալներ',
+  actSolve: 'Լուծել',
+  actShuffle: 'Խառը',
+  actBrowse: 'Դիտել',
+  actOptions: 'Ընտրանքներ',
+  otherModes: 'Այլ ռեժիմներ',
+  randomFrom: 'Պատահական հարցեր բոլոր խմբերից',
+  date: 'Ամսաթիվ',
+  result: 'Արդյունք',
+  exit: 'Դուրս գալ',
+  passShort: 'Հանձնված',
+  failShort: 'Չհանձնված',
   questionsCount: (n: number) => `${n} հարց`,
   groupsCount: (n: number) => `${n} խումբ`,
   continueSession: 'Շարունակել ընթացիկ թեստը',
@@ -86,15 +112,15 @@ export const t = {
   retryWrong: 'Կրկնել սխալները',
   newExam: 'Նոր քննություն',
   again: 'Կրկին',
-  perfect: 'Բոլոր պատասխանները ճիշտ են 🎉',
+  perfect: 'Բոլոր պատասխանները ճիշտ են։',
 
   // browse
   search: 'Որոնել հարցերում…',
   found: (n: number) => `Գտնվեց ${n} հարց`,
   allGroups: 'Բոլոր խմբերը',
   noResults: 'Ոչինչ չի գտնվել',
-  emptyMistakes: 'Սխալներ չկան։ Լավ է 👏',
-  emptyBookmarks: 'Ընտրյալ հարցեր դեռ չկան։ Թեստի ընթացքում սեղմեք ☆ նշանը։',
+  emptyMistakes: 'Սխալներ չկան։',
+  emptyBookmarks: 'Ընտրյալ հարցեր դեռ չկան։ Թեստի ընթացքում սեղմեք աստղանիշը։',
   loadMore: 'Ցույց տալ ավելին',
 
   // settings

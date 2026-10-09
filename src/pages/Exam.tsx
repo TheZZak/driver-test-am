@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useDataset } from '../App'
+import { IconClock } from '../components/Icons'
+import { TestHeader } from '../components/Layout'
+import { NumberStrip } from '../components/NumberStrip'
 import { QuestionCard } from '../components/QuestionCard'
-import { TopBar } from '../components/TopBar'
 import { t } from '../i18n/hy'
 import { examPassed, formatDuration, sessionScore } from '../lib/sessions'
 import { addExam, getSession, recordAnswer, setSession, toggleBookmark, useSession } from '../lib/storage'
@@ -83,61 +85,51 @@ function ExamRunner({ session }: { session: Session }) {
   })
 
   return (
-    <div className="page quiz exam">
-      <TopBar
+    <>
+      <TestHeader
         title={session.label}
         right={
           <span className={'timer' + (remaining < 5 * 60_000 ? ' low' : '')} title={t.timeLeft} aria-label={t.timeLeft}>
-            ⏱ {formatDuration(remaining)}
+            <IconClock /> {formatDuration(remaining)}
           </span>
         }
       />
-
-      <div className="quiz-status">
-        <span className="counter">
-          {t.question} {t.of(idx + 1, ids.length)}
-        </span>
-        <button className="link-btn" onClick={askFinish}>
-          {t.finishExam}
-        </button>
-      </div>
-      <nav className="qnav" aria-label={t.question}>
-        {ids.map((id, i) => (
-          <button
-            key={id}
-            className={'qnav-item' + (i === idx ? ' current' : '') + (answers[i] != null ? ' done' : '')}
-            onClick={() => goTo(i)}
-            aria-current={i === idx}
-          >
-            {i + 1}
+      <main className="page test">
+        <NumberStrip
+          states={answers.map((a) => (a == null ? 'none' : 'answered'))}
+          current={idx}
+          onJump={goTo}
+        />
+        <QuestionCard
+          key={q.id}
+          q={q}
+          groupTitle={group.title}
+          selected={answers[idx]}
+          reveal={false}
+          onSelect={select}
+          heading={`${t.question} ${t.of(idx + 1, ids.length)}`}
+        />
+        <div className="test-nav">
+          <button className="btn" onClick={() => goTo(idx - 1)} disabled={idx === 0}>
+            ← {t.prev}
           </button>
-        ))}
-      </nav>
-
-      <QuestionCard
-        key={q.id}
-        q={q}
-        groupTitle={group.title}
-        selected={answers[idx]}
-        reveal={false}
-        onSelect={select}
-      />
-      <p className="hint muted">{t.allowedErrors(session.maxErrors ?? 0)}</p>
-
-      <nav className="bottom-bar">
-        <button className="btn" onClick={() => goTo(idx - 1)} disabled={idx === 0}>
-          ← {t.prev}
-        </button>
-        {idx < ids.length - 1 ? (
-          <button className={'btn' + (answers[idx] != null ? ' primary' : '')} onClick={() => goTo(idx + 1)}>
-            {t.next} →
-          </button>
-        ) : (
-          <button className="btn primary" onClick={askFinish}>
+          {idx < ids.length - 1 ? (
+            <button className={'btn' + (answers[idx] != null ? ' primary' : '')} onClick={() => goTo(idx + 1)}>
+              {t.next} →
+            </button>
+          ) : (
+            <button className="btn primary" onClick={askFinish}>
+              {t.finishExam}
+            </button>
+          )}
+        </div>
+        <div className="exam-foot">
+          <span className="muted small">{t.allowedErrors(session.maxErrors ?? 0)}</span>
+          <button className="link" onClick={askFinish}>
             {t.finishExam}
           </button>
-        )}
-      </nav>
-    </div>
+        </div>
+      </main>
+    </>
   )
 }

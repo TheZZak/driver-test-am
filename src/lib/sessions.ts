@@ -34,6 +34,10 @@ export function proportionalCounts(sizes: number[], n: number): number[] {
   return counts
 }
 
+export function mistakeIds(data: Dataset, persist: Persist): string[] {
+  return data.questions.filter((q) => persist.stats[q.id]?.mistake).map((q) => q.id)
+}
+
 export function poolFor(data: Dataset, persist: Persist, groups: number[], onlyNew = false): Question[][] {
   return groups.map((g) =>
     (data.byGroup.get(g) ?? []).filter((q) => !onlyNew || !persist.stats[q.id]?.seen),
