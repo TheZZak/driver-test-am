@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useDataset } from '../App'
+import { GroupSign } from '../components/GroupSign'
 import { PageHead, SiteHeader } from '../components/Layout'
 import { t } from '../i18n/hy'
 import { pickQuestions, poolFor, startPractice, type Order } from '../lib/sessions'
@@ -51,8 +52,17 @@ export function Setup() {
       <SiteHeader />
       <main className="page narrow">
         <PageHead
-          title={title}
-          note={isGroup ? `${group!.subtitle} · ${t.questionsCount(group!.count)}` : undefined}
+          title={
+            isGroup ? (
+              <span className="title-with-sign">
+                <GroupSign group={group!.id} size={44} />
+                {title}
+              </span>
+            ) : (
+              title
+            )
+          }
+          note={isGroup ? `${t.groupTopics[group!.id]} · ${t.questionsCount(group!.count)}` : undefined}
         />
 
         {isMix && (

@@ -5,7 +5,7 @@ import { t } from '../i18n/hy'
 import { mistakeIds, startPractice } from '../lib/sessions'
 import { shuffle } from '../lib/shuffle'
 import { usePersist } from '../lib/storage'
-import { IconBack, IconWheel } from './Icons'
+import { IconBack, IconBook, IconMistake, IconSettings, IconStar, IconWheel } from './Icons'
 
 /** Site header for all non-test pages. */
 export function SiteHeader() {
@@ -27,14 +27,16 @@ export function SiteHeader() {
           <span>{t.appName}</span>
         </Link>
         <nav className="site-nav">
-          <NavLink to="/browse">{t.navBrowse}</NavLink>
+          <NavLink to="/browse">
+            <IconBook /> {t.navBrowse}
+          </NavLink>
           <button
             type="button"
             className="nav-btn"
             disabled={!mistakes.length}
             onClick={() => start('mistakes', t.modeMistakes, mistakes)}
           >
-            {t.navMistakes} <span className="count">{mistakes.length}</span>
+            <IconMistake /> {t.navMistakes} <span className="count">{mistakes.length}</span>
           </button>
           <button
             type="button"
@@ -42,9 +44,11 @@ export function SiteHeader() {
             disabled={!bookmarks.length}
             onClick={() => start('bookmarks', t.modeBookmarks, bookmarks)}
           >
-            {t.navBookmarks} <span className="count">{bookmarks.length}</span>
+            <IconStar /> {t.navBookmarks} <span className="count">{bookmarks.length}</span>
           </button>
-          <NavLink to="/settings">{t.settings}</NavLink>
+          <NavLink to="/settings">
+            <IconSettings /> {t.settings}
+          </NavLink>
         </nav>
       </div>
     </header>

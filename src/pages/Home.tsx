@@ -1,6 +1,17 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDataset } from '../App'
+import { GroupSign } from '../components/GroupSign'
+import {
+  IconAlert,
+  IconBook,
+  IconClock,
+  IconList,
+  IconMistake,
+  IconShuffle,
+  IconSliders,
+  IconStar,
+} from '../components/Icons'
 import { PageHead, SiteHeader } from '../components/Layout'
 import { t } from '../i18n/hy'
 import { formatDuration, mistakeIds, pickQuestions, startExam, startPractice } from '../lib/sessions'
@@ -80,9 +91,17 @@ export function Home() {
         <section className="exam-box">
           <div className="exam-box-text">
             <h1>{t.modeExam}</h1>
-            <p className="exam-rules">
-              {t.modeExamDesc(settings.examCount, settings.examMinutes, settings.examMaxErrors)}
-            </p>
+            <ul className="exam-facts">
+              <li>
+                <IconList /> {t.examFactQuestions(settings.examCount)}
+              </li>
+              <li>
+                <IconClock /> {t.examFactMinutes(settings.examMinutes)}
+              </li>
+              <li>
+                <IconAlert /> {t.examFactErrors(settings.examMaxErrors)}
+              </li>
+            </ul>
             <p className="muted small">{t.examIntro}</p>
           </div>
           <button
@@ -102,9 +121,8 @@ export function Home() {
             <thead>
               <tr>
                 <th>{t.colGroup}</th>
-                <th className="num hide-sm">{t.colQuestions}</th>
                 <th className="num">{t.colAnswered}</th>
-                <th className="num hide-sm">{t.mastered}</th>
+                <th className="num hide-md">{t.mastered}</th>
                 <th className="num hide-sm">{t.colMistakes}</th>
                 <th />
               </tr>
@@ -115,19 +133,26 @@ export function Home() {
                 return (
                   <tr key={g.id}>
                     <th scope="row">
-                      <Link to={`/setup/group?g=${g.id}`}>{g.title}</Link>
+                      <Link to={`/setup/group?g=${g.id}`} className="group-cell">
+                        <GroupSign group={g.id} />
+                        <span>
+                          <span className="group-name">{g.title}</span>
+                          <span className="group-topic">{t.groupTopics[g.id]}</span>
+                        </span>
+                      </Link>
                     </th>
-                    <td className="num hide-sm">{g.count}</td>
                     <td className="num answered-cell" data-label={t.colAnswered}>
                       <span className="meter-cell">
                         <span className="meter" aria-hidden="true">
                           <span style={{ width: `${(gs.seen / g.count) * 100}%` }} />
                         </span>
-                        {gs.seen}
-                        <span className="of-total"> / {g.count}</span>
+                        <span>
+                          {gs.seen}
+                          <span className="of-total"> / {g.count}</span>
+                        </span>
                       </span>
                     </td>
-                    <td className="num hide-sm">{gs.mastered}</td>
+                    <td className="num hide-md">{gs.mastered}</td>
                     <td className={'num hide-sm' + (gs.mistakes ? ' bad' : '')}>{gs.mistakes}</td>
                     <td className="actions-cell">
                       <button className="link" onClick={() => startGroup(g.id, g.title, false)}>
@@ -150,7 +175,10 @@ export function Home() {
         <h2 className="section-title">{t.otherModes}</h2>
         <ul className="mode-list">
           <li>
-            <div>
+            <span className="mode-icon">
+              <IconShuffle />
+            </span>
+            <div className="mode-text">
               <div className="mode-title">{t.randomFrom}</div>
               <div className="muted small">{t.questionsCount(data.questions.length)}</div>
             </div>
@@ -166,7 +194,10 @@ export function Home() {
             </div>
           </li>
           <li>
-            <div>
+            <span className="mode-icon">
+              <IconSliders />
+            </span>
+            <div className="mode-text">
               <div className="mode-title">{t.modeMix}</div>
               <div className="muted small">{t.modeMixDesc}</div>
             </div>
@@ -177,7 +208,10 @@ export function Home() {
             </div>
           </li>
           <li>
-            <div>
+            <span className="mode-icon">
+              <IconMistake />
+            </span>
+            <div className="mode-text">
               <div className="mode-title">{t.modeMistakes}</div>
               <div className="muted small">{t.modeMistakesDesc(mistakes.length)}</div>
             </div>
@@ -192,7 +226,10 @@ export function Home() {
             </div>
           </li>
           <li>
-            <div>
+            <span className="mode-icon">
+              <IconStar />
+            </span>
+            <div className="mode-text">
               <div className="mode-title">{t.modeBookmarks}</div>
               <div className="muted small">{t.modeBookmarksDesc(bookmarks.length)}</div>
             </div>
@@ -207,7 +244,10 @@ export function Home() {
             </div>
           </li>
           <li>
-            <div>
+            <span className="mode-icon">
+              <IconBook />
+            </span>
+            <div className="mode-text">
               <div className="mode-title">{t.modeBrowse}</div>
               <div className="muted small">{t.modeBrowseDesc}</div>
             </div>
